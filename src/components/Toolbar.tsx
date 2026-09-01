@@ -15,7 +15,8 @@ import {
   ChevronUp,
   FolderHeart,
   Smartphone,
-  Monitor
+  Monitor,
+  FileJson
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CustomTemplate } from '../types/exam';
@@ -28,6 +29,7 @@ interface ToolbarProps {
   customTemplates: CustomTemplate[];
   onLoadCustomTemplate: (template: CustomTemplate) => void;
   onOpenTemplateManager: () => void;
+  onOpenJsonModal?: () => void;
   zoomFactor: number;
   setZoomFactor: (zoom: number | ((prev: number) => number)) => void;
   previewMode: 'split' | 'preview-only' | 'editor-only';
@@ -46,6 +48,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   customTemplates,
   onLoadCustomTemplate,
   onOpenTemplateManager,
+  onOpenJsonModal,
   zoomFactor,
   setZoomFactor,
   previewMode,
@@ -142,6 +145,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <BookmarkPlus className="w-3.5 h-3.5 text-amber-700" />
             <span className="hidden md:inline">Save Template</span>
           </button>
+
+          {onOpenJsonModal && (
+            <button
+              type="button"
+              onClick={onOpenJsonModal}
+              className="p-1.5 sm:px-2.5 sm:py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-900 border border-cyan-200 rounded-lg text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+              title="JSON Question Generator & Script (LaTeX & Matrix supported)"
+            >
+              <FileJson className="w-3.5 h-3.5 text-cyan-700" />
+              <span className="hidden md:inline">JSON Script</span>
+            </button>
+          )}
         </div>
 
         {/* Right: Quick Exports */}
@@ -261,6 +276,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </span>
             )}
           </button>
+
+          {/* JSON Question Structure Generator */}
+          {onOpenJsonModal && (
+            <button
+              type="button"
+              onClick={onOpenJsonModal}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-900 border border-cyan-200/90 rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              title="Fill JSON structure to auto-generate exam questions with LaTeX formulas and matrices"
+            >
+              <FileJson className="w-3.5 h-3.5 text-cyan-700" />
+              <span className="whitespace-nowrap">JSON Generator</span>
+            </button>
+          )}
         </div>
 
         {/* Center: Zoom, Marks, View Modes */}

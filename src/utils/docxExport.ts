@@ -17,6 +17,197 @@ import {
 import { saveAs } from 'file-saver';
 import { ExamPaperData, ExamSection, ExamQuestion } from '../types/exam';
 
+export function latexToUnicodeMath(raw: string): string {
+  if (!raw) return '';
+  let str = raw;
+
+  // Handle standard display and inline math delimiters
+  str = str.replace(/\$\$([\s\S]*?)\$\$/g, '$1');
+  str = str.replace(/\$([^\$]+)\$/g, '$1');
+
+  // Convert matrix environments: \begin{pmatrix} a & b \\ c & d \end{pmatrix} -> ( a  b ; c  d )
+  str = str.replace(/\\begin\{(pmatrix|bmatrix|vmatrix|Vmatrix|matrix)\}([\s\S]*?)\\end\{\1\}/g, (_, type, inner) => {
+    const rows = inner
+      .trim()
+      .split(/\\\\/)
+      .map((row: string) => row.trim().split('&').map((cell: string) => cell.trim()).join('  '))
+      .join(' ; ');
+    
+    if (type === 'pmatrix') return `( ${rows} )`;
+    if (type === 'vmatrix') return `| ${rows} |`;
+    if (type === 'Vmatrix') return `|| ${rows} ||`;
+    return `[ ${rows} ]`;
+  });
+
+  // Convert piecewise cases: \begin{cases} ... \end{cases}
+  str = str.replace(/\\begin\{cases\}([\s\S]*?)\\end\{cases\}/g, (_, inner) => {
+    const lines = inner
+      .trim()
+      .split(/\\\\/)
+      .map((row: string) => row.trim().split('&').map((cell: string) => cell.trim()).join('   if   '))
+      .join(',  ');
+    return `{ ${lines} }`;
+  });
+
+  // Fractions: \frac{a}{b} -> (a)/(b)
+  str = str.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  str = str.replace(/\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+
+  // Square roots: \sqrt{x} -> √(x), \sqrt[n]{x} -> ⁿ√(x)
+  str = str.replace(/\\sqrt\[([^\]]+)\]\{([^{}]+)\}/g, '($1)√($2)');
+  str = str.replace(/\\sqrt\{([^{}]+)\}/g, '√($1)');
+
+  // Common math symbols and Greek letters
+  const symbolMap: Record<string, string> = {
+    '\\pm': '±',
+    '\\mp': '∓',
+    '\\times': '×',
+    '\\div': '÷',
+    '\\cdot': '·',
+    '\\approx': '≈',
+    '\\neq': '≠',
+    '\\ne': '≠',
+    '\\le': '≤',
+    '\\leq': '≤',
+    '\\ge': '≥',
+    '\\geq': '≥',
+    '\\ll': '≪',
+    '\\gg': '≫',
+    '\\infty': '∞',
+    '\\to': '→',
+    '\\rightarrow': '→',
+    '\\leftarrow': '←',
+    '\\Rightarrow': '⇒',
+    '\\Leftarrow': '⇐',
+    '\\leftrightarrow': '↔',
+    '\\sum': 'Σ',
+    '\\prod': 'Π',
+    '\\int': '∫',
+    '\\iint': '∬',
+    '\\oint': '∮',
+    '\\partial': '∂',
+    '\\nabla': '∇',
+    '\\in': '∈',
+    '\\notin': '∉',
+    '\\subset': '⊂',
+    '\\subseteq': '⊆',
+    '\\cup': '∪',
+    '\\cap': '∩',
+    '\\alpha': 'α',
+    '\\beta': 'β',
+    '\\gamma': 'γ',
+    '\\delta': 'δ',
+    '\\epsilon': 'ε',
+    '\\zeta': 'ζ',
+    '\\eta': 'η',
+    '\\theta': 'θ',
+    '\\iota': 'ι',
+    '\\kappa': 'κ',
+    '\\lambda': 'λ',
+    '\\mu': 'μ',
+    '\\nu': 'ν',
+    '\\xi': 'ξ',
+    '\\pi': 'π',
+    '\\rho': 'ρ',
+    '\\sigma': 'σ',
+    '\\tau': 'τ',
+    '\\phi': 'φ',
+    '\\chi': 'χ',
+    '\\psi': 'ψ',
+    '\\omega': 'ω',
+    '\\Gamma': 'Γ',
+    '\\Delta': 'Δ',
+    '\\Theta': 'Θ',
+    '\\Lambda': 'Λ',
+    '\\Xi': 'Ξ',
+    '\\Pi': 'Π',
+    '\\Sigma': 'Σ',
+    '\\Phi': 'Φ',
+    '\\Psi': 'Ψ',
+    '\\Omega': 'Ω',
+    '\\degree': '°',
+    '\\circ': '°',
+    '\\quad': '  ',
+    '\\qquad': '    ',
+    '\\,': ' ',
+    '\\;': ' ',
+    '\\!': '',
+    '\\{': '{',
+    '\\}': '}',
+  };
+
+  for (const [tex, sym] of Object.entries(symbolMap)) {
+    str = str.split(tex).join(sym);
+  }
+
+  // Superscripts replacement
+  const superMap: Record<string, string> = {
+    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    '+': '⁺', '-': '⁻', '=': '⁼', '(': '⁽', ')': '⁾',
+    'n': 'ⁿ', 'i': 'ⁱ', 'x': 'ˣ', 'y': 'ʸ'
+  };
+
+  str = str.replace(/\^{([^{}]+)}/g, (_, exp) => {
+    return exp.split('').map((char: string) => superMap[char] || char).join('');
+  });
+  str = str.replace(/\^([0-9a-zA-Z+-])/g, (_, char) => superMap[char] || `^${char}`);
+
+  // Subscripts replacement
+  const subMap: Record<string, string> = {
+    '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+    '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
+    '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎',
+    'a': 'ₐ', 'e': 'ₑ', 'h': 'ₕ', 'i': 'ᵢ', 'j': 'ⱼ', 'k': 'ₖ',
+    'l': 'ₗ', 'm': 'ₘ', 'n': 'ₙ', 'o': 'ₒ', 'p': 'ₚ', 'r': 'ᵣ',
+    's': 'ₛ', 't': 'ₜ', 'u': 'ᵤ', 'v': 'ᵥ', 'x': 'ₓ'
+  };
+
+  str = str.replace(/_{([^{}]+)}/g, (_, exp) => {
+    return exp.split('').map((char: string) => subMap[char] || char).join('');
+  });
+  str = str.replace(/_([0-9a-zA-Z+-])/g, (_, char) => subMap[char] || `_${char}`);
+
+  // Clean remaining braces from standard LaTeX groups
+  str = str.replace(/\\text\{([^{}]+)\}/g, '$1');
+  str = str.replace(/\\mathbf\{([^{}]+)\}/g, '$1');
+  str = str.replace(/\\mathit\{([^{}]+)\}/g, '$1');
+
+  return str;
+}
+
+export function createTextRunsWithMathAndBreaks(
+  text: string,
+  font: string,
+  size: number,
+  options?: {
+    bold?: boolean;
+    italics?: boolean;
+    underline?: boolean;
+  }
+): TextRun[] {
+  if (!text) return [];
+  const converted = latexToUnicodeMath(text);
+  const lines = converted.split('\n');
+
+  const runs: TextRun[] = [];
+  lines.forEach((line, index) => {
+    runs.push(
+      new TextRun({
+        text: line,
+        font,
+        size,
+        bold: options?.bold,
+        italics: options?.italics,
+        underline: options?.underline ? { type: UnderlineType.SINGLE } : undefined,
+        break: index > 0 ? 1 : undefined,
+      })
+    );
+  });
+
+  return runs;
+}
+
 export async function exportToWord(examData: ExamPaperData) {
   const { header, formatting, sections } = examData;
   const font = formatting.fontFamily === 'Tinos' ? 'Times New Roman' : formatting.fontFamily;
@@ -267,14 +458,7 @@ export async function exportToWord(examData: ExamPaperData) {
           spacing: { after: 60 },
           children: [
             ...(section.instructionPrompt?.trim()
-              ? [
-                  new TextRun({
-                    text: section.instructionPrompt,
-                    font,
-                    size: halfPt,
-                    bold: true,
-                  }),
-                ]
+              ? createTextRunsWithMathAndBreaks(section.instructionPrompt, font, halfPt, { bold: true })
               : []),
             ...(section.choiceRule
               ? [
@@ -297,14 +481,7 @@ export async function exportToWord(examData: ExamPaperData) {
       children.push(
         new Paragraph({
           spacing: { after: 100 },
-          children: [
-            new TextRun({
-              text: section.fieldNote,
-              font,
-              size: Math.round(halfPt * 0.92),
-              italics: true,
-            }),
-          ],
+          children: createTextRunsWithMathAndBreaks(section.fieldNote, font, Math.round(halfPt * 0.92), { italics: true }),
         })
       );
     }
@@ -492,7 +669,7 @@ function renderQuestionInDocx(
 ) {
   const numPrefix = question.number ? `${question.number}. ` : '';
 
-  // Question header text line
+  // Question header text line with LaTeX and line break support
   children.push(
     new Paragraph({
       spacing: { before: 100, after: 40 },
@@ -504,11 +681,7 @@ function renderQuestionInDocx(
           size: halfPt,
           bold: true,
         }),
-        new TextRun({
-          text: question.questionText,
-          font,
-          size: halfPt,
-        }),
+        ...createTextRunsWithMathAndBreaks(question.questionText, font, halfPt),
         ...(question.marks
           ? [
               new TextRun({
@@ -529,14 +702,7 @@ function renderQuestionInDocx(
       new Paragraph({
         spacing: { after: 40 },
         indent: { left: 480 },
-        children: [
-          new TextRun({
-            text: question.subText,
-            font,
-            size: Math.round(halfPt * 0.95),
-            italics: true,
-          }),
-        ],
+        children: createTextRunsWithMathAndBreaks(question.subText, font, Math.round(halfPt * 0.95), { italics: true }),
       })
     );
   }
@@ -605,7 +771,10 @@ function renderQuestionInDocx(
                     spacing: { after: 30 },
                     children: [
                       new TextRun({ text: getBullet(0), font, size: halfPt, bold: true }),
-                      new TextRun({ text: opt1, font, size: halfPt, underline: isOpt1Correct ? { type: UnderlineType.SINGLE } : undefined, bold: isOpt1Correct }),
+                      ...createTextRunsWithMathAndBreaks(opt1, font, halfPt, {
+                        bold: isOpt1Correct,
+                        underline: isOpt1Correct,
+                      }),
                     ],
                   }),
                 ],
@@ -624,7 +793,10 @@ function renderQuestionInDocx(
                     spacing: { after: 30 },
                     children: [
                       new TextRun({ text: getBullet(1), font, size: halfPt, bold: true }),
-                      new TextRun({ text: opt2, font, size: halfPt, underline: isOpt2Correct ? { type: UnderlineType.SINGLE } : undefined, bold: isOpt2Correct }),
+                      ...createTextRunsWithMathAndBreaks(opt2, font, halfPt, {
+                        bold: isOpt2Correct,
+                        underline: isOpt2Correct,
+                      }),
                     ],
                   }),
                 ],
@@ -647,7 +819,10 @@ function renderQuestionInDocx(
                     spacing: { after: 40 },
                     children: [
                       new TextRun({ text: getBullet(2), font, size: halfPt, bold: true }),
-                      new TextRun({ text: opt3, font, size: halfPt, underline: isOpt3Correct ? { type: UnderlineType.SINGLE } : undefined, bold: isOpt3Correct }),
+                      ...createTextRunsWithMathAndBreaks(opt3, font, halfPt, {
+                        bold: isOpt3Correct,
+                        underline: isOpt3Correct,
+                      }),
                     ],
                   }),
                 ],
@@ -666,7 +841,10 @@ function renderQuestionInDocx(
                     spacing: { after: 40 },
                     children: [
                       new TextRun({ text: getBullet(3), font, size: halfPt, bold: true }),
-                      new TextRun({ text: opt4, font, size: halfPt, underline: isOpt4Correct ? { type: UnderlineType.SINGLE } : undefined, bold: isOpt4Correct }),
+                      ...createTextRunsWithMathAndBreaks(opt4, font, halfPt, {
+                        bold: isOpt4Correct,
+                        underline: isOpt4Correct,
+                      }),
                     ],
                   }),
                 ],
@@ -696,12 +874,9 @@ function renderQuestionInDocx(
             indent: { left: 480 },
             children: [
               new TextRun({ text: bullet, font, size: halfPt, bold: true }),
-              new TextRun({
-                text: opt,
-                font,
-                size: halfPt,
+              ...createTextRunsWithMathAndBreaks(opt, font, halfPt, {
                 bold: isCorrect,
-                underline: isCorrect ? { type: UnderlineType.SINGLE } : undefined,
+                underline: isCorrect,
               }),
               ...(isCorrect ? [new TextRun({ text: '  [✓ Correct]', font, size: Math.round(halfPt * 0.85), bold: true })] : []),
             ],
@@ -720,7 +895,7 @@ function renderQuestionInDocx(
           indent: { left: 600, hanging: 300 },
           children: [
             new TextRun({ text: `${subQ.label} `, font, size: halfPt, bold: true }),
-            new TextRun({ text: subQ.text, font, size: halfPt }),
+            ...createTextRunsWithMathAndBreaks(subQ.text, font, halfPt),
             ...(subQ.marks
               ? [new TextRun({ text: ` (${subQ.marks} marks)`, font, size: Math.round(halfPt * 0.9), italics: true })]
               : []),

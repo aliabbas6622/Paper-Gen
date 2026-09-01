@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ExamPaperData, CustomTemplate } from './types/exam';
+import { ExamPaperData, CustomTemplate, ExamQuestion } from './types/exam';
 import { DEFAULT_EXAM_DATA, PRESET_TEMPLATES } from './data/defaultExam';
 import { ExamHeaderEditor } from './components/ExamHeaderEditor';
 import { FormattingEditor } from './components/FormattingEditor';
@@ -7,6 +7,7 @@ import { SectionEditor } from './components/SectionEditor';
 import { ExamPaperPreview } from './components/ExamPaperPreview';
 import { Toolbar } from './components/Toolbar';
 import { TemplateManagerModal } from './components/TemplateManagerModal';
+import JsonQuestionModal from './components/JsonQuestionModal';
 import { exportToWord } from './utils/docxExport';
 import {
   FileText,
@@ -54,6 +55,7 @@ export default function App() {
   });
 
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState<boolean>(() => {
     const saved = localStorage.getItem('exam_header_collapsed_v1');
     return saved === 'true';
@@ -154,6 +156,39 @@ export default function App() {
     confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
   };
 
+  const handleInsertJsonQuestions = (
+    targetSecId: string,
+    newQuestions: ExamQuestion[],
+    mode: 'append' | 'prepend' | 'replace'
+  ) => {
+    const secIdx = examData.sections.findIndex((s) => s.id === targetSecId);
+    if (secIdx === -1) return;
+
+    const targetSec = examData.sections[secIdx];
+    let updatedQuestions: ExamQuestion[] = [];
+
+    if (mode === 'replace') {
+      updatedQuestions = newQuestions;
+    } else if (mode === 'prepend') {
+      updatedQuestions = [...newQuestions, ...targetSec.questions];
+    } else {
+      updatedQuestions = [...targetSec.questions, ...newQuestions];
+    }
+
+    const newSections = [...examData.sections];
+    newSections[secIdx] = {
+      ...targetSec,
+      questions: updatedQuestions,
+    };
+    setExamData({
+      ...examData,
+      sections: newSections,
+      updatedAt: new Date().toISOString(),
+    });
+    setActiveTab('sections');
+    confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
+  };
+
   // Calculate question count and total marks
   const totalQuestionsCount = examData.sections
     .filter((s) => s.enabled)
@@ -170,6 +205,7 @@ export default function App() {
         customTemplates={customTemplates}
         onLoadCustomTemplate={handleLoadCustomTemplate}
         onOpenTemplateManager={() => setIsTemplateModalOpen(true)}
+        onOpenJsonModal={() => setIsJsonModalOpen(true)}
         zoomFactor={zoomFactor}
         setZoomFactor={setZoomFactor}
         previewMode={previewMode}
@@ -401,6 +437,15 @@ export default function App() {
         customTemplates={customTemplates}
         onSaveTemplate={handleSaveTemplate}
         onDeleteTemplate={handleDeleteTemplate}
+      />
+
+      {/* JSON Question Structure Generator & Importer Modal */}
+      <JsonQuestionModal
+        isOpen={isJsonModalOpen}
+        onClose={() => setIsJsonModalOpen(false)}
+        sections={examData.sections}
+        activeSectionId={examData.sections[0]?.id || 'section-a'}
+        onInsertQuestions={handleInsertJsonQuestions}
       />
     </div>
   );

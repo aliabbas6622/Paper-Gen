@@ -23,8 +23,13 @@ import {
   ChevronsUpDown,
   Maximize2,
   Minimize2,
-  HelpCircle
+  HelpCircle,
+  Sigma,
+  FileJson
 } from 'lucide-react';
+import MathRenderer from './MathRenderer';
+import EquationHelper from './EquationHelper';
+import JsonQuestionModal from './JsonQuestionModal';
 
 interface SectionEditorProps {
   sections: ExamSection[];
@@ -104,6 +109,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
   const [activeSectionId, setActiveSectionId] = useState<SectionId>(sections[0]?.id || 'section-a');
   const [bulkModalSection, setBulkModalSection] = useState<SectionId | null>(null);
   const [bulkText, setBulkText] = useState('');
+  const [isJsonModalOpen, setIsJsonModalOpen] = useState<boolean>(false);
   
   // Collapsible panels state for Section settings
   const [isSectionDetailsOpen, setIsSectionDetailsOpen] = useState(true);
@@ -113,12 +119,88 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
   // Collapsible state for individual question cards: map of questionId -> boolean (true = expanded)
   const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
 
+  // Equation helper modal target state
+  const [equationTarget, setEquationTarget] = useState<{
+    qId: string;
+    field: 'questionText' | 'subText' | 'option' | 'subQuestion';
+    optIdx?: number;
+    subIdx?: number;
+  } | null>(null);
+
   const currentSection = sections.find((s) => s.id === activeSectionId) || sections[0];
 
   const updateSection = (id: SectionId, updates: Partial<ExamSection>) => {
     onChange(
       sections.map((s) => (s.id === id ? { ...s, ...updates } : s))
     );
+  };
+
+  const handleInsertJsonQuestions = (
+    targetSecId: string,
+    newQuestions: ExamQuestion[],
+    mode: 'append' | 'prepend' | 'replace'
+  ) => {
+    const secIdx = sections.findIndex((s) => s.id === targetSecId);
+    if (secIdx === -1) return;
+
+    const targetSec = sections[secIdx];
+    let updatedQuestions: ExamQuestion[] = [];
+
+    if (mode === 'replace') {
+      updatedQuestions = newQuestions;
+    } else if (mode === 'prepend') {
+      updatedQuestions = [...newQuestions, ...targetSec.questions];
+    } else {
+      updatedQuestions = [...targetSec.questions, ...newQuestions];
+    }
+
+    const newSections = [...sections];
+    newSections[secIdx] = {
+      ...targetSec,
+      questions: updatedQuestions,
+    };
+    onChange(newSections);
+    setActiveSectionId(targetSecId);
+  };
+
+  const handleInsertEquationFromModal = (latex: string) => {
+    if (!equationTarget) return;
+    const { qId, field, optIdx, subIdx } = equationTarget;
+    const q = currentSection.questions.find((item) => item.id === qId);
+    if (!q) return;
+
+    if (field === 'questionText') {
+      const current = q.questionText || '';
+      const updated = current ? `${current} ${latex}` : latex;
+      handleUpdateQuestion(qId, { questionText: updated });
+    } else if (field === 'subText') {
+      const current = q.subText || '';
+      const updated = current ? `${current} ${latex}` : latex;
+      handleUpdateQuestion(qId, { subText: updated });
+    } else if (field === 'option' && optIdx !== undefined && q.options) {
+      const newOpts = [...q.options];
+      const current = newOpts[optIdx] || '';
+      newOpts[optIdx] = current ? `${current} ${latex}` : latex;
+      handleUpdateQuestion(qId, { options: newOpts });
+    } else if (field === 'subQuestion' && subIdx !== undefined && q.subQuestions) {
+      const newSubs = [...q.subQuestions];
+      const current = newSubs[subIdx].text || '';
+      newSubs[subIdx] = {
+        ...newSubs[subIdx],
+        text: current ? `${current} ${latex}` : latex,
+      };
+      handleUpdateQuestion(qId, { subQuestions: newSubs });
+    }
+  };
+
+  const handleQuickInsertSymbol = (qId: string, symbol: string, field: 'questionText' | 'subText' = 'questionText') => {
+    const q = currentSection.questions.find((item) => item.id === qId);
+    if (!q) return;
+    if (field === 'questionText') {
+      handleUpdateQuestion(qId, { questionText: (q.questionText || '') + symbol });
+    } else if (field === 'subText') {
+      handleUpdateQuestion(qId, { subText: (q.subText || '') + symbol });
+    }
   };
 
   const toggleQuestionExpanded = (qId: string) => {
@@ -892,6 +974,16 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
 
           <button
             type="button"
+            onClick={() => setIsJsonModalOpen(true)}
+            className="text-[11px] px-2.5 py-1 bg-cyan-950/90 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 rounded-md font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+            title="Fill JSON structure to generate questions with LaTeX and Matrix support"
+          >
+            <FileJson className="w-3.5 h-3.5 text-cyan-400" />
+            <span>JSON Script / Importer</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => handleAddQuestion(currentSection.type)}
             className="text-xs font-semibold bg-white text-slate-900 hover:bg-slate-100 px-3 py-1 rounded-md transition-colors shadow-xs flex items-center gap-1 cursor-pointer"
           >
@@ -904,16 +996,26 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
       {/* INDIVIDUAL COLLAPSIBLE QUESTION CARDS LIST */}
       <div className="space-y-2.5">
         {currentSection.questions.length === 0 ? (
-          <div className="bg-white p-8 rounded-xl border border-dashed border-slate-300 text-center space-y-2">
+          <div className="bg-white p-8 rounded-xl border border-dashed border-slate-300 text-center space-y-3">
             <FileQuestion className="w-8 h-8 text-slate-400 mx-auto" />
             <div className="text-xs text-slate-600 font-medium">No questions in this section yet</div>
-            <button
-              type="button"
-              onClick={() => handleAddQuestion(currentSection.type)}
-              className="text-xs text-slate-900 underline font-semibold cursor-pointer"
-            >
-              Click here to add the first question
-            </button>
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => handleAddQuestion(currentSection.type)}
+                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                + Add Single Question
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsJsonModalOpen(true)}
+                className="px-3 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-900 border border-cyan-300 rounded-lg text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <FileJson className="w-3.5 h-3.5 text-cyan-700" />
+                <span>Fill JSON Structure (LaTeX & Matrix)</span>
+              </button>
+            </div>
           </div>
         ) : (
           currentSection.questions.map((question, qIdx) => {
@@ -946,7 +1048,11 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                     {/* Truncated Question Text preview */}
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-times text-slate-900 truncate leading-snug">
-                        {question.questionText || <span className="italic text-slate-400">Empty question text...</span>}
+                        {question.questionText ? (
+                          <MathRenderer text={question.questionText} inline />
+                        ) : (
+                          <span className="italic text-slate-400">Empty question text...</span>
+                        )}
                       </div>
                       {/* Sub-info if collapsed */}
                       {!isExpanded && (
@@ -1022,6 +1128,37 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                 {/* EXPANDED DETAILED EDITOR PANEL */}
                 {isExpanded && (
                   <div className="p-3.5 pt-2 border-t border-slate-100 space-y-3 bg-white">
+                    {/* Math & Quick Symbols Toolbar */}
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700">
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEquationTarget({ qId: question.id, field: 'questionText' })}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-white border border-slate-300 hover:border-cyan-600 hover:text-cyan-700 rounded-md shadow-2xs transition-colors cursor-pointer text-slate-800"
+                          title="Open Equation Helper & Math Formulas Palette"
+                        >
+                          <Sigma className="w-3.5 h-3.5 text-cyan-600" />
+                          <span>Insert Equation / Formula</span>
+                        </button>
+                      </div>
+
+                      {/* Quick symbols */}
+                      <div className="flex items-center flex-wrap gap-1">
+                        <span className="text-[10px] text-slate-400 font-semibold mr-0.5">Quick:</span>
+                        {['±', '×', '÷', '√', '²', '³', 'π', 'θ', 'Δ', '∫', 'Σ', '→', '≈', '≠', '≤', '≥', '°', '½'].map((sym) => (
+                          <button
+                            key={sym}
+                            type="button"
+                            onClick={() => handleQuickInsertSymbol(question.id, sym, 'questionText')}
+                            className="w-5 h-5 flex items-center justify-center text-xs font-mono-code bg-white hover:bg-slate-200 border border-slate-200 rounded hover:border-slate-400 text-slate-800 transition-all cursor-pointer"
+                            title={`Insert ${sym}`}
+                          >
+                            {sym}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Row 1: Number, Question Text & Marks */}
                     <div className="flex items-start gap-2">
                       <div className="w-14 shrink-0">
@@ -1038,16 +1175,29 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                       </div>
 
                       <div className="flex-1">
-                        <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
-                          Question Statement
-                        </label>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[10px] font-semibold text-slate-500">
+                            Question Statement (Supports multi-line, LaTeX $...$ & $$...$$)
+                          </label>
+                          <span className="text-[10px] text-slate-400 italic">Enter key for new lines</span>
+                        </div>
                         <textarea
                           rows={2}
                           value={question.questionText}
                           onChange={(e) => handleUpdateQuestion(question.id, { questionText: e.target.value })}
-                          placeholder="Enter question text here..."
+                          placeholder="Enter question text here (e.g. Solve the equation: $x^2 - 5x + 6 = 0$)..."
                           className="w-full text-xs px-3 py-1.5 border border-slate-300 rounded-lg focus:border-slate-800 focus:ring-1 focus:ring-slate-800 focus:outline-hidden font-times leading-relaxed bg-white"
                         />
+
+                        {/* Live Rendered Math Preview if equation or newlines detected */}
+                        {question.questionText && (question.questionText.includes('$') || question.questionText.includes('\n') || question.questionText.includes('\\')) && (
+                          <div className="mt-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-times text-slate-900 leading-normal">
+                            <div className="text-[10px] font-sans font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-cyan-600" /> Live Formatted Preview:
+                            </div>
+                            <MathRenderer text={question.questionText} />
+                          </div>
+                        )}
                       </div>
 
                       {/* Marks input */}
@@ -1149,6 +1299,16 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                                   }`}
                                 />
 
+                                {/* Formula button for option */}
+                                <button
+                                  type="button"
+                                  onClick={() => setEquationTarget({ qId: question.id, field: 'option', optIdx })}
+                                  className="text-slate-400 hover:text-cyan-600 p-0.5 cursor-pointer"
+                                  title="Insert math formula into this option"
+                                >
+                                  <Sigma className="w-3.5 h-3.5" />
+                                </button>
+
                                 {question.options && question.options.length > 2 && (
                                   <button
                                     type="button"
@@ -1228,9 +1388,17 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                                     newSubs[subIdx].text = e.target.value;
                                     handleUpdateQuestion(question.id, { subQuestions: newSubs });
                                   }}
-                                  placeholder="Sub-question text..."
+                                  placeholder="Sub-question text (supports math $...$)..."
                                   className="flex-1 text-xs border border-slate-300 rounded-md px-2 py-1 font-times bg-white focus:outline-hidden focus:border-slate-800"
                                 />
+                                <button
+                                  type="button"
+                                  onClick={() => setEquationTarget({ qId: question.id, field: 'subQuestion', subIdx })}
+                                  className="text-slate-400 hover:text-cyan-600 p-1 cursor-pointer"
+                                  title="Insert math formula into sub-question"
+                                >
+                                  <Sigma className="w-3.5 h-3.5" />
+                                </button>
                                 <input
                                   type="text"
                                   value={subQ.marks || ''}
@@ -1362,6 +1530,22 @@ Input`}
           </div>
         </div>
       )}
+
+      {/* Equation & Math Formula Palette Modal */}
+      <EquationHelper
+        isOpen={!!equationTarget}
+        onClose={() => setEquationTarget(null)}
+        onInsert={handleInsertEquationFromModal}
+      />
+
+      {/* JSON Question Structure Generator & Importer Modal */}
+      <JsonQuestionModal
+        isOpen={isJsonModalOpen}
+        onClose={() => setIsJsonModalOpen(false)}
+        sections={sections}
+        activeSectionId={activeSectionId}
+        onInsertQuestions={handleInsertJsonQuestions}
+      />
     </div>
   );
 };

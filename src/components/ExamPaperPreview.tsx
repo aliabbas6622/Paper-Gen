@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ExamPaperData, ExamSection, ExamQuestion, OptionBulletStyle } from '../types/exam';
+import MathRenderer from './MathRenderer';
 
 interface ExamPaperPreviewProps {
   examData: ExamPaperData;
@@ -242,7 +243,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                         className="font-bold text-black leading-snug flex-1"
                         style={{ fontSize: `${formatting.baseFontSize}pt` }}
                       >
-                        {section.instructionPrompt}
+                        <MathRenderer text={section.instructionPrompt} />
                       </div>
                     )}
                     {section.choiceRule && (
@@ -250,7 +251,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                         className="font-bold italic text-black shrink-0 text-right"
                         style={{ fontSize: `${formatting.baseFontSize * 0.95}pt` }}
                       >
-                        [{section.choiceRule}]
+                        [<MathRenderer text={section.choiceRule} inline />]
                       </div>
                     )}
                   </div>
@@ -261,7 +262,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                       className="italic text-black/85 mb-3.5 text-left text-xs sm:text-[11.5pt] leading-normal"
                       style={{ fontSize: `${formatting.baseFontSize * 0.9}pt` }}
                     >
-                      {section.fieldNote}
+                      <MathRenderer text={section.fieldNote} />
                     </div>
                   )}
 
@@ -275,7 +276,9 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                             {question.number ? `${question.number}.` : ''}
                           </span>
                           <div className="flex-1">
-                            <span className="font-normal">{question.questionText}</span>
+                            <span className="font-normal">
+                              <MathRenderer text={question.questionText} />
+                            </span>
                             {question.marks?.trim() && (
                               <span className="font-bold italic text-[0.9em] ml-2">
                                 [{question.marks} marks]
@@ -287,7 +290,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                         {/* SubText if any */}
                         {question.subText?.trim() && (
                           <div className="ml-7 mt-1 italic text-stone-800 text-[0.95em]">
-                            {question.subText}
+                            <MathRenderer text={question.subText} />
                           </div>
                         )}
 
@@ -317,7 +320,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                                         {getBulletSymbol(optIdx, formatting.optionBulletStyle)}
                                       </span>
                                       <span className={`leading-snug ${isCorrect ? 'underline decoration-emerald-600 font-bold' : ''}`}>
-                                        {opt}
+                                        <MathRenderer text={opt} inline />
                                         {isCorrect && (
                                           <span className="text-emerald-700 font-bold ml-1.5 text-xs font-mono-code no-print">
                                             ✓ [Ans]
@@ -344,7 +347,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                                         {getBulletSymbol(optIdx, formatting.optionBulletStyle)}
                                       </span>
                                       <span className={`leading-snug ${isCorrect ? 'underline decoration-emerald-600 font-bold' : ''}`}>
-                                        {opt}
+                                        <MathRenderer text={opt} inline />
                                         {isCorrect && (
                                           <span className="text-emerald-700 font-bold ml-1 text-[10px] font-mono-code no-print">
                                             ✓
@@ -371,7 +374,7 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                                         {getBulletSymbol(optIdx, formatting.optionBulletStyle)}
                                       </span>
                                       <span className={`leading-snug ${isCorrect ? 'underline decoration-emerald-600 font-bold' : ''}`}>
-                                        {opt}
+                                        <MathRenderer text={opt} inline />
                                         {isCorrect && (
                                           <span className="text-emerald-700 font-bold ml-1.5 text-xs font-mono-code no-print">
                                             ✓ [Ans]
@@ -393,7 +396,9 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                               <div key={subQ.id} className="flex items-start gap-2 leading-snug">
                                 <span className="font-bold shrink-0">{subQ.label}</span>
                                 <div className="flex-1">
-                                  <span>{subQ.text}</span>
+                                  <span>
+                                    <MathRenderer text={subQ.text} />
+                                  </span>
                                   {subQ.marks?.trim() && (
                                     <span className="italic text-[0.9em] ml-1.5">
                                       ({subQ.marks} marks)
@@ -468,13 +473,13 @@ export const ExamPaperPreview = forwardRef<HTMLDivElement, ExamPaperPreviewProps
                               </td>
                               <td className="p-1.5 border-r border-black">
                                 {correctBadge && <span className="font-bold mr-1">{correctBadge}</span>}
-                                {answerText}
+                                <MathRenderer text={answerText} inline />
                               </td>
                               <td className="p-1.5 border-r border-black text-center font-bold">
                                 {q.marks || sec.marksPerQuestion || '—'}
                               </td>
                               <td className="p-1.5 italic text-stone-600">
-                                {q.correctAnswerNote || 'Accurate explanation'}
+                                <MathRenderer text={q.correctAnswerNote || 'Accurate explanation'} inline />
                               </td>
                             </tr>
                           );
