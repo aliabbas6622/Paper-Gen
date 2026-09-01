@@ -1,0 +1,6 @@
+{
+  "name": "Exam Paper Builder & Formatter",
+  "description": "Professional exam paper generator in Times New Roman format with custom margins, column layouts, Section A (MCQs), Section B (Short), Section C (Long), and PDF & Word export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
