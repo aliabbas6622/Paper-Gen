@@ -109,3 +109,15 @@ export interface ExamPaperData {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CustomTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  templateType: 'full' | 'structure-only';
+  header: ExamHeader;
+  formatting: FormattingOptions;
+  sections: ExamSection[];
+}
