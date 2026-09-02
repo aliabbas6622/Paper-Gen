@@ -91,7 +91,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   const CurrentIcon = current.icon;
 
   return (
-    <header className="no-print bg-white border-b border-slate-200/90 sticky top-0 z-20 shadow-2xs h-14 shrink-0 flex items-center justify-between px-3 sm:px-6">
+    <header className="no-print bg-[#fbfaf6] border-b border-[#d9d5ca] sticky top-0 z-20 h-16 shrink-0 flex items-center justify-between px-3 sm:px-6">
       {/* Left: Sidebar Toggle & Page Breadcrumb */}
       <div className="flex items-center gap-3 min-w-0">
         {/* Mobile Hamburger Menu Toggle */}

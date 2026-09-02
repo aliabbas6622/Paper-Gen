@@ -46,27 +46,19 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
     }, 0);
 
   return (
-    <div className="w-full max-w-[1750px] mx-auto p-2 sm:p-4 flex flex-col flex-1 min-h-0 overflow-hidden font-ui">
+    <div className="w-full max-w-[1750px] mx-auto p-3 sm:p-6 flex flex-col flex-1 min-h-0 overflow-hidden font-ui">
       {/* Top Page Action & Context Banner */}
-      <div className="no-print mb-3 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-2.5 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <h2 className="text-xs sm:text-sm font-bold text-slate-900">
-              Questions & Section Management
-            </h2>
-          </div>
-          <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <span className="bg-slate-100 px-2 py-0.5 rounded font-mono-code font-semibold text-slate-800">
-              {examData.sections.length} Sections
-            </span>
-            <span className="bg-slate-100 px-2 py-0.5 rounded font-mono-code font-semibold text-slate-800">
-              {totalQuestions} Questions
-            </span>
-            <span className="bg-slate-100 px-2 py-0.5 rounded font-mono-code font-semibold text-slate-800 hidden md:inline">
-              {totalMarks} Total Marks
-            </span>
+      <div className="no-print mb-4 studio-surface p-4 sm:p-5 rounded-2xl flex flex-wrap items-end justify-between gap-4 shrink-0">
+        <div className="flex flex-col gap-1.5">
+          <span className="studio-kicker">Paper workspace</span>
+          <h2 className="font-serif text-2xl sm:text-3xl font-semibold tracking-tight text-[#172522] text-balance">
+            Build your paper
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">Shape the structure, tune each question, then review the finished document.</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[11px] font-mono-code text-stone-500">
+            <span><strong className="text-[#172522]">{examData.sections.length}</strong> sections</span>
+            <span><strong className="text-[#172522]">{totalQuestions}</strong> questions</span>
+            <span><strong className="text-[#172522]">{totalMarks}</strong> marks</span>
           </div>
         </div>
 
