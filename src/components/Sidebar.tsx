@@ -126,9 +126,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const sidebarContent = (
-    <div className="h-full flex flex-col justify-between bg-[#172522] text-stone-100 select-none">
+    <div className="h-full flex flex-col justify-between bg-[#f1eee7] text-[#172522] select-none">
       {/* Top Header / Brand */}
-      <div className="shrink-0 p-3 sm:p-4 border-b border-slate-800/80">
+      <div className="shrink-0 p-3 sm:p-4 border-b border-[#d9d5ca]">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">
             <div className="size-9 rounded-xl bg-[#d9efeb] text-[#0f766e] flex items-center justify-center font-serif font-bold text-lg shadow-md shrink-0">
@@ -137,14 +137,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {(!isCollapsed || isMobileOpen) && (
               <div className="min-w-0 transition-opacity duration-200">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="font-bold text-sm text-white tracking-tight font-ui truncate">
+                  <h1 className="font-bold text-sm text-[#172522] tracking-tight font-ui truncate">
                     Paper-Gen
                   </h1>
                   <span className="bg-cyan-500/20 text-cyan-300 text-[10px] font-mono-code font-bold px-1.5 py-0.2 rounded border border-cyan-500/30">
                     PRO
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate">
+                <p className="text-[11px] text-[#6b7772] truncate">
                   Paper workspace
                 </p>
               </div>
@@ -156,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="lg:hidden p-1.5 rounded-lg text-[#6b7772] hover:text-[#172522] hover:bg-[#eae7df] transition-colors"
               aria-label="Close menu"
             >
               <X className="w-5 h-5" />
@@ -167,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="hidden lg:flex p-1.5 rounded-lg text-[#6b7772] hover:text-[#172522] hover:bg-[#eae7df] transition-colors"
             title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -176,17 +176,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Current Exam Summary Badge (only when expanded) */}
         {(!isCollapsed || isMobileOpen) && (
-          <div className="mt-3.5 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs space-y-1.5">
+          <div className="mt-3.5 p-2.5 rounded-xl bg-[#fbfaf6] border border-[#d9d5ca] text-xs space-y-1.5">
             <div className="flex items-center justify-between gap-1 text-[11px]">
-              <span className="text-slate-400 font-medium truncate">Current Paper:</span>
+              <span className="text-[#6b7772] font-medium truncate">Current Paper:</span>
               <span className="font-bold text-cyan-300 font-mono-code text-[11px]">
                 {totalMarks || '100'} Marks
               </span>
             </div>
-            <div className="font-semibold text-white truncate text-xs">
+            <div className="font-semibold text-[#172522] truncate text-xs">
               {subjectTitle || 'Examination Subject'}
             </div>
-            <div className="flex items-center gap-2 pt-1 border-t border-slate-700/60 text-[10px] text-slate-400 font-mono-code">
+            <div className="flex items-center gap-2 pt-1 border-t border-slate-700/60 text-[10px] text-[#6b7772] font-mono-code">
               <span>{sectionsCount} Secs</span>
               <span>•</span>
               <span>{totalQuestions} Questions</span>
@@ -200,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {navGroups.map((group, gIdx) => (
           <div key={gIdx} className="space-y-1">
             {(!isCollapsed || isMobileOpen) && (
-              <h2 className="px-2.5 text-[10px] font-mono-code font-bold uppercase tracking-wider text-slate-400 mb-1">
+              <h2 className="px-2.5 text-[10px] font-mono-code font-bold uppercase tracking-wider text-[#6b7772] mb-1">
                 {group.group}
               </h2>
             )}
@@ -215,14 +215,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => handleNavClick(item.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer group text-left ${
                       isActive
-                        ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-950/40 ring-1 ring-cyan-400/30'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800/90'
+                        ? 'bg-[#d9efeb] text-[#0f5f59] shadow-sm ring-1 ring-[#9acdc5]'
+                        : 'text-[#4b5f5a] hover:text-[#172522] hover:bg-[#fbfaf6]'
                     }`}
                     title={isCollapsed && !isMobileOpen ? `${item.label} - ${item.description}` : undefined}
                   >
                     <Icon
                       className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                        isActive ? 'text-white' : 'text-slate-400 group-hover:text-cyan-300'
+                        isActive ? 'text-[#172522]' : 'text-[#6b7772] group-hover:text-cyan-300'
                       }`}
                     />
 
@@ -237,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             className={`shrink-0 text-[10px] font-mono-code font-bold px-1.5 py-0.2 rounded-full leading-none ${
                               isActive
                                 ? 'bg-cyan-950/80 text-cyan-200 border border-cyan-400/40'
-                                : 'bg-slate-800 text-slate-300 border border-slate-700'
+                                : 'bg-[#eae7df] text-[#4b5f5a] border border-[#d9d5ca]'
                             }`}
                           >
                             {item.badge}
@@ -254,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Actions: Export Word, Print PDF, Reset */}
-      <div className="shrink-0 p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-2">
+      <div className="shrink-0 p-3 border-t border-[#d9d5ca] bg-[#eae7df] space-y-2">
         {(!isCollapsed || isMobileOpen) ? (
           <div className="space-y-1.5">
             {/* Export Word Button */}
@@ -283,7 +283,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onReset}
-              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-slate-400 hover:text-rose-300 hover:bg-slate-800/60 rounded-lg text-[11px] transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[#6b7772] hover:text-rose-300 hover:bg-[#eae7df]/60 rounded-lg text-[11px] transition-colors cursor-pointer"
               title="Reset exam to default preset"
             >
               <RotateCcw className="w-3 h-3" />
@@ -313,7 +313,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onReset}
-              className="p-2 text-slate-400 hover:text-rose-300 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              className="p-2 text-[#6b7772] hover:text-rose-300 hover:bg-[#eae7df] rounded-lg transition-colors cursor-pointer"
               title="Reset Exam"
             >
               <RotateCcw className="w-3.5 h-3.5" />
