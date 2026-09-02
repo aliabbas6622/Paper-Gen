@@ -145,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 truncate">
-                  Academic Paper Designer
+                  Paper workspace
                 </p>
               </div>
             )}

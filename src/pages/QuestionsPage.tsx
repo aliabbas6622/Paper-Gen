@@ -54,8 +54,7 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
           <h2 className="font-serif text-2xl sm:text-3xl font-semibold tracking-tight text-[#172522] text-balance">
             Build your paper
           </h2>
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">Shape the structure, tune each question, then review the finished document.</p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[11px] font-mono-code text-stone-500">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[11px] font-mono-code text-stone-500">
             <span><strong className="text-[#172522]">{examData.sections.length}</strong> sections</span>
             <span><strong className="text-[#172522]">{totalQuestions}</strong> questions</span>
             <span><strong className="text-[#172522]">{totalMarks}</strong> marks</span>
