@@ -10,7 +10,7 @@ import {
   FileCode,
   Sparkles,
   BookmarkPlus,
-  BookOpen,
+  BookOpenText,
   ChevronDown,
   ChevronUp,
   FolderHeart,
@@ -237,7 +237,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
           {/* Preset & Custom Template Dropdown */}
           <div className="flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5 text-slate-500 hidden md:block" />
+            <BookOpenText className="w-3.5 h-3.5 text-slate-500 hidden md:block" />
             <select
               value={selectedPresetValue}
               onChange={(e) => handleDropdownChange(e.target.value)}

@@ -10,7 +10,7 @@ import {
   FileText,
   Sliders,
   FileCode2,
-  BookOpen,
+  BookOpenText,
   PanelLeftClose,
   PanelLeftOpen
 } from 'lucide-react';
@@ -83,7 +83,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     templates: {
       title: 'Template Library',
       subtitle: 'Official board presets, exam blueprints, and custom saved layouts',
-      icon: BookOpen,
+      icon: BookOpenText,
     },
   };
 

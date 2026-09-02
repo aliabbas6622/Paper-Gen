@@ -5,7 +5,7 @@ import {
   FileText,
   Sliders,
   FileCode2,
-  BookOpen,
+  BookOpenText,
   FileDown,
   Printer,
   RotateCcw,
@@ -110,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {
           id: 'templates' as AppPage,
           label: 'Template Library',
-          icon: BookOpen,
+          icon: BookOpenText,
           badge: templateCount > 0 ? templateCount : undefined,
           description: 'Standard presets & saved blueprints',
         },

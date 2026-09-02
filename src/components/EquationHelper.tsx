@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sigma, Copy, Check, Sparkles, BookOpen, X } from 'lucide-react';
+import { Sigma, Copy, Check, Sparkles, BookOpenText, X } from 'lucide-react';
 import MathRenderer from './MathRenderer';
 
 interface EquationHelperProps {
@@ -248,7 +248,7 @@ export const EquationHelper: React.FC<EquationHelperProps> = ({
         {/* Footer info */}
         <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 shrink-0">
           <div className="flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5 text-cyan-600" />
+            <BookOpenText className="w-3.5 h-3.5 text-cyan-600" />
             <span>
               Tip: Wrap inline formulas in <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">$...$</code> or block equations in <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">$$...$$</code>.
             </span>
