@@ -527,7 +527,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                       {section.name || (section.letter === 'A' ? 'Section A: Multiple Choice' : section.letter === 'B' ? 'Section B: Theoretical' : 'Section C: Practical')}
                     </div>
                     <div className={`text-[10px] font-normal ${isActive ? 'text-slate-300' : 'text-slate-500'}`}>
-                      {section.questions.length} Qs • {section.type.toUpperCase()}
+                      {section.questions.length} Qs • {section.type.toUpperCase()} • {section.marks}
                     </div>
                   </div>
                 </div>
@@ -576,9 +576,6 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                   {currentSection.type}
                 </span>
               </h3>
-              <p className="text-[11px] text-slate-500 font-medium">
-                {currentSection.title} • {currentSection.subtitle} • {currentSection.marks}
-              </p>
             </div>
           </div>
 
@@ -933,7 +930,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-cyan-400" />
           <span className="text-xs font-bold uppercase tracking-wider font-mono-code">
-            {currentSection.name || `Section ${currentSection.letter}`} Questions ({currentSection.questions.length})
+            Questions
           </span>
           <span className="text-[10px] font-medium bg-slate-800 px-2 py-0.5 rounded text-slate-300">
             Total {totalSectionMarks} Marks
@@ -941,55 +938,16 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* Collapse All / Expand All Toggles */}
-          <button
-            type="button"
-            onClick={collapseAllQuestions}
-            className="text-[11px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md font-medium flex items-center gap-1 cursor-pointer transition-colors"
-            title="Collapse all questions into compact summary cards"
-          >
-            <Minimize2 className="w-3 h-3" />
-            <span className="hidden sm:inline">Collapse All</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={expandAllQuestions}
-            className="text-[11px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md font-medium flex items-center gap-1 cursor-pointer transition-colors"
-            title="Expand all questions to view full options and subparts"
-          >
-            <Maximize2 className="w-3 h-3" />
-            <span className="hidden sm:inline">Expand All</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={autoRenumberCurrentSection}
-            className="text-[11px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md font-medium flex items-center gap-1 cursor-pointer transition-colors"
-            title="Renumber questions sequentially"
-          >
-            <ListOrdered className="w-3 h-3" />
-            <span className="hidden sm:inline">Renumber</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsJsonModalOpen(true)}
-            className="text-[11px] px-2.5 py-1 bg-cyan-950/90 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 rounded-md font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
-            title="Fill JSON structure to generate questions with LaTeX and Matrix support"
-          >
-            <FileJson className="w-3.5 h-3.5 text-cyan-400" />
-            <span>JSON Script / Importer</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleAddQuestion(currentSection.type)}
-            className="text-xs font-semibold bg-white text-slate-900 hover:bg-slate-100 px-3 py-1 rounded-md transition-colors shadow-xs flex items-center gap-1 cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Question</span>
-          </button>
+          <details className="relative">
+            <summary className="list-none text-[11px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md font-medium cursor-pointer">•••</summary>
+            <div className="absolute right-0 top-full mt-2 z-20 min-w-44 rounded-lg border border-slate-700 bg-slate-900 p-1 shadow-xl">
+              <button type="button" onClick={collapseAllQuestions} className="w-full rounded px-2.5 py-2 text-left text-[11px] text-slate-200 hover:bg-slate-800 flex items-center gap-2"><Minimize2 className="w-3 h-3" /> Collapse all</button>
+              <button type="button" onClick={expandAllQuestions} className="w-full rounded px-2.5 py-2 text-left text-[11px] text-slate-200 hover:bg-slate-800 flex items-center gap-2"><Maximize2 className="w-3 h-3" /> Expand all</button>
+              <button type="button" onClick={autoRenumberCurrentSection} className="w-full rounded px-2.5 py-2 text-left text-[11px] text-slate-200 hover:bg-slate-800 flex items-center gap-2"><ListOrdered className="w-3 h-3" /> Renumber</button>
+              <button type="button" onClick={() => setIsJsonModalOpen(true)} className="w-full rounded px-2.5 py-2 text-left text-[11px] text-slate-200 hover:bg-slate-800 flex items-center gap-2"><FileJson className="w-3 h-3" /> JSON importer</button>
+            </div>
+          </details>
+          <button type="button" onClick={() => handleAddQuestion(currentSection.type)} className="text-xs font-semibold bg-white text-slate-900 hover:bg-slate-100 px-3 py-1 rounded-md transition-colors shadow-xs flex items-center gap-1 cursor-pointer"><Plus className="w-3.5 h-3.5" /> <span>Add Question</span></button>
         </div>
       </div>
 
@@ -1027,7 +985,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
             return (
               <div
                 key={question.id}
-                className="bg-white rounded-xl border border-slate-200 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
+                className="group bg-white rounded-xl border border-slate-200 shadow-xs hover:border-slate-300 transition-all overflow-hidden"
               >
                 {/* COLLAPSED QUESTION HEADER / SUMMARY BAR */}
                 <div
@@ -1054,24 +1012,13 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
                           <span className="italic text-slate-400">Empty question text...</span>
                         )}
                       </div>
-                      {/* Sub-info if collapsed */}
-                      {!isExpanded && (
-                        <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
-                          {currentSection.type === 'mcq' && question.options && (
-                            <span>{question.options.length} options</span>
-                          )}
-                          {question.subQuestions && question.subQuestions.length > 0 && (
-                            <span>{question.subQuestions.length} sub-parts</span>
-                          )}
-                          {question.codeSnippet && <span>Contains Code</span>}
-                        </div>
-                      )}
+
                     </div>
 
                     {/* Correct Answer Key Chip for MCQs */}
                     {currentSection.type === 'mcq' && correctOptLetter && (
-                      <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold font-mono-code bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md shrink-0">
-                        <Check className="w-3 h-3 text-emerald-600" /> Key: ({correctOptLetter})
+                      <span className="hidden sm:inline-flex items-center text-[10px] font-medium font-mono-code text-slate-500 shrink-0">
+                        Key: {correctOptLetter}
                       </span>
                     )}
 
@@ -1085,7 +1032,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
 
                   {/* Reorder and management icons */}
                   <div
-                    className="flex items-center gap-0.5 text-slate-400 shrink-0"
+                    className="flex items-center gap-0.5 text-slate-400 shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
