@@ -123,3 +123,16 @@
   column-count: 2;
   column-gap: 2rem;
 }
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideRight {
+  animation: slideRight 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
