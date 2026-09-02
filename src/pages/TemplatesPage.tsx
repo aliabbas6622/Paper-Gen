@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CustomTemplate, ExamPaperData } from '../types/exam';
 import { PRESET_TEMPLATES } from '../data/defaultExam';
 import {
-  BookOpen,
+  BookOpenText,
   BookmarkPlus,
   Save,
   Trash2,
@@ -151,7 +151,7 @@ export const TemplatesPage: React.FC<TemplatesPageProps> = ({
       {/* Top Banner */}
       <div className="no-print mb-3 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-2xs flex items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-amber-700" />
+          <BookOpenText className="w-4 h-4 text-amber-700" />
           <h2 className="text-xs sm:text-sm font-bold text-slate-900">
             Exam Template & Preset Library
           </h2>

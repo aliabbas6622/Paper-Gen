@@ -11,7 +11,7 @@ import {
   RotateCcw,
   Sparkles,
   CheckCircle2,
-  BookOpen
+  BookOpenText
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -56,7 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'header', label: 'Exam Header', icon: FileText },
     { id: 'formatting', label: 'Page Setup & Fonts', icon: Sliders },
     { id: 'json-studio', label: 'JSON Studio', icon: FileCode2 },
-    { id: 'templates', label: 'Template Library', icon: BookOpen, badge: templateCount > 0 ? templateCount : undefined },
+    { id: 'templates', label: 'Template Library', icon: BookOpenText, badge: templateCount > 0 ? templateCount : undefined },
   ];
 
   return (

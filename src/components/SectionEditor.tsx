@@ -112,9 +112,9 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
   const [isJsonModalOpen, setIsJsonModalOpen] = useState<boolean>(false);
   
   // Collapsible panels state for Section settings
-  const [isSectionDetailsOpen, setIsSectionDetailsOpen] = useState(true);
+  const [isSectionDetailsOpen, setIsSectionDetailsOpen] = useState(false);
   const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
-  const [isMcqSettingsOpen, setIsMcqSettingsOpen] = useState(true);
+  const [isMcqSettingsOpen, setIsMcqSettingsOpen] = useState(false);
 
   // Collapsible state for individual question cards: map of questionId -> boolean (true = expanded)
   const [expandedQuestions, setExpandedQuestions] = useState<Record<string, boolean>>({});
@@ -211,11 +211,11 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({ sections, onChange
   };
 
   const isQuestionExpanded = (qId: string) => {
-    // By default, if questions are 4 or fewer, expand all; if more, first 2 expanded
+    // Keep the canvas calm: show only the first question until the user opens another.
     if (expandedQuestions[qId] !== undefined) {
       return expandedQuestions[qId];
     }
-    return true;
+    return currentSection.questions[0]?.id === qId;
   };
 
   const collapseAllQuestions = () => {

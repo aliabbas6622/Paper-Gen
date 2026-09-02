@@ -5,7 +5,7 @@ import {
   FileText,
   Sliders,
   FileCode2,
-  BookOpen,
+  BookOpenText,
   FileDown,
   Printer,
   RotateCcw,
@@ -110,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {
           id: 'templates' as AppPage,
           label: 'Template Library',
-          icon: BookOpen,
+          icon: BookOpenText,
           badge: templateCount > 0 ? templateCount : undefined,
           description: 'Standard presets & saved blueprints',
         },
@@ -126,26 +126,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const sidebarContent = (
-    <div className="h-full flex flex-col justify-between bg-slate-900 text-slate-100 select-none">
+    <div className="h-full flex flex-col justify-between bg-[#172522] text-stone-100 select-none">
       {/* Top Header / Brand */}
       <div className="shrink-0 p-3 sm:p-4 border-b border-slate-800/80">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center font-times font-bold text-lg shadow-md shrink-0">
-              T
+            <div className="size-9 rounded-xl bg-[#d9efeb] text-[#0f766e] flex items-center justify-center font-serif font-bold text-lg shadow-md shrink-0">
+              P
             </div>
             {(!isCollapsed || isMobileOpen) && (
               <div className="min-w-0 transition-opacity duration-200">
                 <div className="flex items-center gap-1.5">
                   <h1 className="font-bold text-sm text-white tracking-tight font-ui truncate">
-                    Exam Formatter
+                    Paper-Gen
                   </h1>
                   <span className="bg-cyan-500/20 text-cyan-300 text-[10px] font-mono-code font-bold px-1.5 py-0.2 rounded border border-cyan-500/30">
                     PRO
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 truncate">
-                  Academic Paper Designer
+                  Paper workspace
                 </p>
               </div>
             )}
